@@ -46,6 +46,19 @@ class TopicManager(private val context: Context) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    /**
+     * True si Firebase està configurat (google-services.json present).
+     * Sense el projecte Firebase d'Izan, les subscripcions a topics no poden funcionar;
+     * la UI ho mostra amb un avís en comptes de fallar en silenci.
+     */
+    fun isPushAvailable(): Boolean = try {
+        FirebaseMessaging.getInstance()
+        true
+    } catch (e: Exception) {
+        Log.w(TAG, "FCM no disponible (falta configurar Firebase): ${e.message}")
+        false
+    }
+
     private fun teamKey(e: Int) = booleanPreferencesKey("team_$e")
     private fun articlesKey(e: Int) = booleanPreferencesKey("articles_$e")
     private fun matchdayKey(e: Int) = booleanPreferencesKey("matchday_$e")

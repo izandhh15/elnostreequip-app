@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -78,6 +79,21 @@ fun SettingsScreen(onOpenAdmin: () -> Unit) {
         ) {
             item {
                 Text("Notificacions", style = MaterialTheme.typography.titleMedium)
+            }
+            if (!app.topicManager.isPushAvailable()) {
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Text(
+                            "Les notificacions push encara no estan actives: falta crear el projecte Firebase. Els teus ajustos es guarden igualment i s'activaran sols quan estiga configurat.",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             }
             items(TeamMapper.ALL.size) { i ->
                 TeamNotificationCard(equipId = TeamMapper.ALL[i])

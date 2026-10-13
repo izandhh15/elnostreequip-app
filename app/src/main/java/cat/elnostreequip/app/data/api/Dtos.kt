@@ -1,5 +1,6 @@
 package cat.elnostreequip.app.data.api
 
+import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 
 /** DTOs mínimos del WordPress REST API de elnostreequip.cat */
@@ -31,9 +32,13 @@ data class WpJugadora(
     /** IDs de la taxonomía `equip` (39=Primer Equip, 40=B, 41=C, 42=D) */
     val equip: List<Int> = emptyList(),
     @SerializedName("featured_media") val featuredMedia: Long = 0,
-    /** Campos meta/ACF: aquí debería venir el dorsal, la posición, etc. (pendiente de verificar) */
-    val meta: Map<String, Any?>? = null,
-    val acf: Map<String, Any?>? = null,
+    /**
+     * Meta/ACF: l'API de elnostreequip.cat retorna [] (array buit) quan no hi ha camps,
+     * així que s'usa JsonElement per tolerar-ho (un Map petaria amb JsonSyntaxException).
+     * El dorsal/posició no estan exposats a la REST API de moment.
+     */
+    val meta: JsonElement? = null,
+    val acf: JsonElement? = null,
     @SerializedName("_embedded") val embedded: WpEmbedded? = null
 )
 
@@ -69,14 +74,16 @@ fun WpEmbedded?.featuredImageUrl(): String? {
     return medium?.takeIf { it.isNotBlank() } ?: media.sourceUrl.takeIf { it.isNotBlank() }
 }
 
-/** Extrae un campo de texto de meta o acf (claves candidatas). */
+/** Extrae un campo de texto de meta o acf (claves candidatas). Tolera arrays buits []. */
 fun WpJugadora.field(vararg keys: String): String? {
-    val maps = listOfNotNull(meta, acf)
-    for (map in maps) {
+    for (el in listOfNotNull(meta, acf)) {
+        if (!el.isJsonObject) continue
+        val obj = el.asJsonObject
         for (k in keys) {
-            val v = map[k] ?: continue
-            val s = v.toString().trim()
-            if (s.isNotBlank() && s != "null" && !s.startsWith("{") && !s.startsWith("[")) return s
+            val v = obj.get(k) ?: continue
+            if (!v.isJsonPrimitive) continue
+            val s = v.asString.trim()
+            if (s.isNotBlank() && s != "null") return s
         }
     }
     return null
