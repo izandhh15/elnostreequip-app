@@ -2,8 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
-    // TODO: id("com.google.gms.google-services") — pendiente de google-services.json
-    // (Izan debe crear el proyecto Firebase). Sin él, FCM compila pero no funciona en runtime.
+    id("com.google.gms.google-services")
 }
 
 android {

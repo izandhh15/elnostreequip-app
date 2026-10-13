@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "247865414066",
+    "project_id": "el-nostre-equip",
+    "storage_bucket": "el-nostre-equip.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247865414066:android:ae88942d4fa1dc80c254ab",
+        "android_client_info": {
+          "package_name": "cat.elnostreequip.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlWlg8jIlVT9Se65ypl9ws8ky5jb1GBlI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
