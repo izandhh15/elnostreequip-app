@@ -284,6 +284,11 @@ fun HomeScreen(
 
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
+/** Test: funció normal amb PartitPost (no composable). */
+private fun testPartitTitle(p: ElNostreEquipRepository.PartitPost): String {
+    return p.title
+}
+
 private fun SlimNextMatchCard(
     match: CalendarMatch,
     teamId: Int,
