@@ -138,15 +138,6 @@ class ElNostreEquipRepository(
             )
         }
 
-    /** Dades en directe d'un partit (marcador, minut, estat). */
-    suspend fun matchLive(partitId: Long): MatchLiveData? =
-        try {
-            val resp = api.matchLive(partido = partitId)
-            if (resp.success) resp.data else null
-        } catch (_: Exception) {
-            null
-        }
-
     data class PartitPost(
         val id: Long,
         val title: String,
