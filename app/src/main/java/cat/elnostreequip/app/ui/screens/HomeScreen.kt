@@ -291,7 +291,6 @@ fun HomeScreen(
 
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
-@Composable
 private fun PartitDestacatCard(
     partit: PartitPost
 ) {
