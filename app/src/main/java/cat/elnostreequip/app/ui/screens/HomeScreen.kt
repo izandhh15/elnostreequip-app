@@ -53,7 +53,6 @@ import androidx.lifecycle.viewModelScope
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.R
 import cat.elnostreequip.app.data.ElNostreEquipRepository
-import cat.elnostreequip.app.data.ElNostreEquipRepository.PartitPost
 import cat.elnostreequip.app.data.TeamMapper
 import cat.elnostreequip.app.data.api.CalendarMatch
 import cat.elnostreequip.app.data.db.ArticleEntity
@@ -292,7 +291,7 @@ fun HomeScreen(
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
 private fun PartitDestacatCard(
-    partit: PartitPost
+    partit: ElNostreEquipRepository.PartitPost
 ) {
     Text(partit.title)
 }
