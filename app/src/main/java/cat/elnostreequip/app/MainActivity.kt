@@ -120,7 +120,10 @@ private fun ElNostreEquipNav() {
                 "article/{id}",
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { entry ->
-                ArticleScreen(articleId = entry.arguments?.getLong("id") ?: 0L)
+                ArticleScreen(
+                    articleId = entry.arguments?.getLong("id") ?: 0L,
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable("teams") {
                 TeamsScreen(
