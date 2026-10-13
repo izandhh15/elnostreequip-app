@@ -53,7 +53,6 @@ import androidx.lifecycle.viewModelScope
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.R
 import cat.elnostreequip.app.data.ElNostreEquipRepository
-import cat.elnostreequip.app.data.PartitPost
 import cat.elnostreequip.app.data.TeamMapper
 import cat.elnostreequip.app.data.api.CalendarMatch
 import cat.elnostreequip.app.data.db.ArticleEntity
@@ -82,8 +81,8 @@ class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
     private val _nextMatch = MutableStateFlow<Pair<Int, CalendarMatch>?>(null)
     val nextMatch: StateFlow<Pair<Int, CalendarMatch>?> = _nextMatch
 
-    private val _partitPosts = MutableStateFlow<List<PartitPost>>(emptyList())
-    val partitPosts: StateFlow<List<PartitPost>> = _partitPosts
+    private val _partitPosts = MutableStateFlow<List<ElNostreEquipRepository.PartitPost>>(emptyList())
+    val partitPosts: StateFlow<List<ElNostreEquipRepository.PartitPost>> = _partitPosts
 
     private val _refreshing = MutableStateFlow(false)
     val refreshing: StateFlow<Boolean> = _refreshing
@@ -159,7 +158,6 @@ fun HomeScreen(
     val articles by vm.articles.collectAsState()
     val teamFilter by vm.teamFilter.collectAsState()
     val nextMatch by vm.nextMatch.collectAsState()
-    val partitPosts by vm.partitPosts.collectAsState()
     val refreshing by vm.refreshing.collectAsState()
     val error by vm.error.collectAsState()
 
@@ -286,10 +284,6 @@ fun HomeScreen(
 
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
-private fun TestSimple() {
-    Text("test")
-}
-
 private fun SlimNextMatchCard(
     match: CalendarMatch,
     teamId: Int,
