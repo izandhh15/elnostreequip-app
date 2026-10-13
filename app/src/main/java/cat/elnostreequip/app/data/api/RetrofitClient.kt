@@ -8,13 +8,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
     const val BASE_URL = "https://elnostreequip.cat/wp-json/wp/v2/"
 
-    val api: WpApi by lazy {
+    val client: OkHttpClient by lazy {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BASIC
         }
-        val client = OkHttpClient.Builder()
+        OkHttpClient.Builder()
             .addInterceptor(logging)
             .build()
+    }
+
+    val api: WpApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)

@@ -14,9 +14,9 @@ data class WpPost(
     val date: String = "",
     val slug: String = "",
     val link: String = "",
-    val title: Rendered = Rendered(),
-    val content: Rendered = Rendered(),
-    val excerpt: Rendered = Rendered(),
+    val title: Rendered? = null,
+    val content: Rendered? = null,
+    val excerpt: Rendered? = null,
     val categories: List<Int> = emptyList(),
     val tags: List<Int> = emptyList(),
     @SerializedName("featured_media") val featuredMedia: Long = 0,
@@ -27,15 +27,18 @@ data class WpJugadora(
     val id: Long,
     val slug: String = "",
     val link: String = "",
-    val title: Rendered = Rendered(),
-    val content: Rendered = Rendered(),
+    val title: Rendered? = null,
+    val content: Rendered? = null,
     /** IDs de la taxonomía `equip` (39=Primer Equip, 40=B, 41=C, 42=D) */
     val equip: List<Int> = emptyList(),
+    /** Dorsal i posició exposats pel plugin «El Nostre Equip — Push & Directe». */
+    @SerializedName("ene_dorsal") val eneDorsal: JsonElement? = null,
+    @SerializedName("ene_posicio") val enePosicio: JsonElement? = null,
     @SerializedName("featured_media") val featuredMedia: Long = 0,
     /**
      * Meta/ACF: l'API de elnostreequip.cat retorna [] (array buit) quan no hi ha camps,
      * així que s'usa JsonElement per tolerar-ho (un Map petaria amb JsonSyntaxException).
-     * El dorsal/posició no estan exposats a la REST API de moment.
+     * El dorsal/posició venen del plugin (ene_dorsal/ene_posicio); açò és fallback.
      */
     val meta: JsonElement? = null,
     val acf: JsonElement? = null,
@@ -72,6 +75,25 @@ fun WpEmbedded?.featuredImageUrl(): String? {
     val media = this?.featuredMedia?.firstOrNull() ?: return null
     val medium = media.mediaDetails?.sizes?.get("medium")?.sourceUrl
     return medium?.takeIf { it.isNotBlank() } ?: media.sourceUrl.takeIf { it.isNotBlank() }
+}
+
+/** Dorsal del plugin (pot venir com a número o com a text). */
+fun WpJugadora.dorsal(): Int? {
+    val el = eneDorsal ?: return null
+    if (!el.isJsonPrimitive) return null
+    val p = el.asJsonPrimitive
+    return when {
+        p.isNumber -> p.asInt
+        p.isString -> p.asString.filter { it.isDigit() }.toIntOrNull()
+        else -> null
+    }
+}
+
+/** Posició del plugin. */
+fun WpJugadora.posicio(): String? {
+    val el = enePosicio ?: return null
+    if (!el.isJsonPrimitive) return null
+    return el.asString.trim().takeIf { it.isNotBlank() }
 }
 
 /** Extrae un campo de texto de meta o acf (claves candidatas). Tolera arrays buits []. */
