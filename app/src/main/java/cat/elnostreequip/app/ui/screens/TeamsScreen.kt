@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,8 +73,8 @@ fun TeamsScreen(onTeamClick: (Int) -> Unit) {
                             .background(
                                 Brush.horizontalGradient(
                                     listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.72f)
+                                        Color(0xFFFF7B00),
+                                        Color(0xFFFFA726)
                                     )
                                 )
                             )
@@ -85,20 +86,20 @@ fun TeamsScreen(onTeamClick: (Int) -> Unit) {
                                     TeamMapper.shortName(equipId).uppercase(),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = FontWeight.Black,
-                                    color = MaterialTheme.colorScheme.tertiary
+                                    color = Color(0xFF002070)
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     TeamMapper.fullName(equipId),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = Color.White
                                 )
                                 Spacer(Modifier.height(2.dp))
                                 Text(
                                     if (followed) "El segueixes ✓" else "Toca per veure la plantilla",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                                    color = Color.White.copy(alpha = 0.85f)
                                 )
                             }
                             Column(horizontalAlignment = Alignment.End) {
@@ -111,7 +112,7 @@ fun TeamsScreen(onTeamClick: (Int) -> Unit) {
                                 Icon(
                                     Icons.Filled.ChevronRight,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                                    tint = Color.White.copy(alpha = 0.8f)
                                 )
                             }
                         }

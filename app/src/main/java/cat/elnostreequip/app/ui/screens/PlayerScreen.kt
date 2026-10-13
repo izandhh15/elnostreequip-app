@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -123,8 +124,8 @@ private fun PlayerHeader(p: PlayerEntity) {
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
+                        Color(0xFFFF7B00),
+                        Color(0xFFFFA726)
                     )
                 )
             )
@@ -163,19 +164,19 @@ private fun PlayerHeader(p: PlayerEntity) {
                     p.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
                 if (p.position.isNotBlank()) {
                     Text(
                         p.position,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+                        color = Color.White.copy(alpha = 0.9f)
                     )
                 }
                 Text(
                     TeamMapper.fullName(p.teamId),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
         }
