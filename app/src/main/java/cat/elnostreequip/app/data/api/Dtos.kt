@@ -126,3 +126,21 @@ fun WpJugadora.field(vararg keys: String): String? {
     }
     return null
 }
+
+/** Dades en directe del Match Center (via admin-ajax.php action=ene_get_match_data). */
+data class MatchLiveResponse(
+    val success: Boolean = false,
+    val data: MatchLiveData? = null
+)
+
+data class MatchLiveData(
+    @SerializedName("gols_local") val golsLocal: Int = 0,
+    @SerializedName("goles_rival") val golsRival: Int = 0,
+    @SerializedName("penals_local") val penalsLocal: Int = 0,
+    @SerializedName("penals_rival") val penalsRival: Int = 0,
+    @SerializedName("minut_directe") val minutDirecte: String = "",
+    val segundos: Int = 0,
+    val estat: String = "",
+    val pausado: Boolean = false,
+    @SerializedName("valencia_es_local") val valenciaEsLocal: Boolean = true
+)
