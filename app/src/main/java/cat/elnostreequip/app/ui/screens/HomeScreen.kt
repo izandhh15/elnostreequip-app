@@ -228,6 +228,12 @@ fun HomeScreen(
                         }
                     }
 
+                    if (vm.partitPosts.value.isNotEmpty() && teamFilter == null) {
+                        item(key = "partitdestacat") {
+                            PartitDestacatCard(partit = vm.partitPosts.value.first())
+                        }
+                    }
+
                     // Pròxim partit (franja compacta)
                     if (nextMatch != null && teamFilter == null) {
                         item(key = "nextmatch") {
@@ -284,6 +290,40 @@ fun HomeScreen(
 
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
+@Composable
+private fun PartitDestacatCard(
+    partit: ElNostreEquipRepository.PartitPost
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Text(
+                "PARTIT",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                partit.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
 private fun SlimNextMatchCard(
     match: CalendarMatch,
     teamId: Int,
