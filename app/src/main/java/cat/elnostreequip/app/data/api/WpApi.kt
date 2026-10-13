@@ -57,13 +57,4 @@ interface WpApi {
 
     @GET("media/{id}")
     suspend fun media(@Path("id") id: Long): WpMedia
-
-    /** Tipus de post "partit" — els partits que crea Izan apareixen destacats a l'inici. */
-    @GET("partit")
-    suspend fun partits(
-        @Query("per_page") perPage: Int = 5,
-        @Query("orderby") orderBy: String = "date",
-        @Query("order") order: String = "desc",
-        @Query("_fields") fields: String? = null
-    ): List<WpPost>
 }
