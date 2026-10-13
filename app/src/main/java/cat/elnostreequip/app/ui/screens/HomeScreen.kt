@@ -158,6 +158,7 @@ fun HomeScreen(
     val articles by vm.articles.collectAsState()
     val teamFilter by vm.teamFilter.collectAsState()
     val nextMatch by vm.nextMatch.collectAsState()
+    val partitPosts by vm.partitPosts.collectAsState()
     val refreshing by vm.refreshing.collectAsState()
     val error by vm.error.collectAsState()
 
@@ -225,6 +226,12 @@ fun HomeScreen(
                                     )
                                 )
                             }
+                        }
+                    }
+
+                    if (partitPosts.isNotEmpty() && teamFilter == null) {
+                        item(key = "partitdestacat") {
+                            PartitDestacatCard(partit = partitPosts.first())
                         }
                     }
 
