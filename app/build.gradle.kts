@@ -84,14 +84,14 @@ dependencies {
 
 // Branding: els PNGs (icones + logo) es pugen al repo com a .b64 perquè
 // l'eina de publicació només accepta text pla. Aquesta tasca els descodifica
-// a src/main/res abans de compilar els recursos.
-val decodeBranding by tasks.registering {
-    val srcDir = file("branding-b64")
-    val resDir = file("src/main/res")
-    inputs.dir(srcDir)
-    doLast {
+// a src/main/res abans de compilar res (via preBuild).
+val decodeBranding: TaskProvider<Task> = tasks.register("decodeBranding") { task ->
+    val srcDir: java.io.File = task.project.file("branding-b64")
+    val resDir: java.io.File = task.project.file("src/main/res")
+    task.inputs.dir(srcDir)
+    task.doLast {
         srcDir.walkTopDown()
-            .filter { it.isFile && it.extension == "b64" }
+            .filter { f -> f.isFile && f.extension == "b64" }
             .forEach { f ->
                 val out = resDir.resolve(f.relativeTo(srcDir).path.removeSuffix(".b64"))
                 out.parentFile.mkdirs()
@@ -99,6 +99,7 @@ val decodeBranding by tasks.registering {
             }
     }
 }
-tasks.matching { it.name.startsWith("merge") && it.name.contains("Resources") }.configureEach {
-    dependsOn(decodeBranding)
+project.afterEvaluate {
+    val decode: TaskProvider<Task> = tasks.named("decodeBranding")
+    tasks.named("preBuild") { t -> t.dependsOn(decode) }
 }
