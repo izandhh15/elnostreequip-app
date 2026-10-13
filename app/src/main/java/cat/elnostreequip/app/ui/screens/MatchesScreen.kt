@@ -122,26 +122,49 @@ private fun norm(s: String): String =
 private val TEAM_STOPWORDS = setOf(
     "valencia", "femeni", "femenino", "femenina", "club", "cf", "de",
     "la", "el", "les", "dels", "del", "afc", "ud", "sd", "cd", "ce", "fc",
-    "rcd", "atletico", "atletic", "reial", "real", "deportivo", "sporting"
+    "rcd", "deportivo", "sporting"
+)
+
+/** Àlies català/castellà per a noms d'equip (bidireccionals). */
+private val TEAM_ALIASES = mapOf(
+    "barcelona" to listOf("barcelona", "barca"),
+    "barca" to listOf("barcelona", "barca"),
+    "atletico" to listOf("atletico", "atletic"),
+    "atletic" to listOf("atletico", "atletic"),
+    "reial" to listOf("reial", "real"),
+    "real" to listOf("reial", "real")
 )
 
 /**
  * Troba articles de Partits relacionats amb un partit: coincideix el rival
  * (l'equip que no és el València) pel seu nom al títol.
+ * Si el rival té 2+ paraules distintives, CALEN TOTES (així "Atlètic de Madrid"
+ * no agafa notícies del "Reial Madrid").
  */
 private fun relatedFor(
     match: CalendarMatch,
     articles: List<ElNostreEquipRepository.RelatedArticle>
 ): List<ElNostreEquipRepository.RelatedArticle> {
     val homeN = norm(match.home)
-    val awayN = norm(match.away)
     val rival = if ("valencia" in homeN) match.away else match.home
-    val keywords = norm(rival).split(Regex("[^a-z0-9]+"))
-        .filter { it.length > 3 && it !in TEAM_STOPWORDS }
-    if (keywords.isEmpty()) return emptyList()
+    val words = norm(rival).split(Regex("[^a-z0-9]+"))
+        .filter { it.length > 2 && it !in TEAM_STOPWORDS }
+    if (words.isEmpty()) return emptyList()
     return articles.filter { a ->
         val t = norm(a.title)
-        keywords.any { it in t }
+        if (words.size >= 2) {
+            words.all { w ->
+                val variants = TEAM_ALIASES[w] ?: listOf(w)
+                variants.any { it in t }
+            }
+        } else {
+            val w = words[0]
+            val variants = TEAM_ALIASES[w] ?: listOf(w)
+            variants.any { v ->
+                // coincidència per paraula sencera per evitar "barca" en "barcaza" etc.
+                Regex("(?<![a-z0-9])${Regex.escape(v)}(?![a-z0-9])").containsMatchIn(t)
+            }
+        }
     }.take(2)
 }
 

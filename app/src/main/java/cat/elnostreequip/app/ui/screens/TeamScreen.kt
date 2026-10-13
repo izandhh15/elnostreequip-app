@@ -47,6 +47,7 @@ import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.data.TeamMapper
 import cat.elnostreequip.app.data.db.PlayerEntity
 import coil.compose.AsyncImage
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -58,12 +59,26 @@ class TeamViewModel(app: ElNostreEquipApp, private val equipId: Int) : ViewModel
     val squad: StateFlow<List<PlayerEntity>> =
         repo.observeSquad(equipId).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    private val _loading = MutableStateFlow(true)
+    val loading: StateFlow<Boolean> = _loading
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
     init {
+        refresh()
+    }
+
+    fun refresh() {
         viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
             try {
                 repo.refreshSquad(equipId)
-            } catch (_: Exception) {
-                // Se muestra la caché; el error se ignora en fase 1.
+            } catch (e: Exception) {
+                _error.value = "No s'ha pogut carregar la plantilla"
+            } finally {
+                _loading.value = false
             }
         }
     }
@@ -77,11 +92,13 @@ class TeamViewModel(app: ElNostreEquipApp, private val equipId: Int) : ViewModel
 fun TeamScreen(equipId: Int, onPlayerClick: (Long) -> Unit) {
     val vm: TeamViewModel = appViewModel { TeamViewModel(it, equipId) }
     val squad by vm.squad.collectAsState()
+    val loading by vm.loading.collectAsState()
+    val error by vm.error.collectAsState()
 
     Scaffold(
         topBar = { EneTopBar(TeamMapper.fullName(equipId)) }
     ) { padding ->
-        if (squad.isEmpty()) {
+        if (squad.isEmpty() && loading) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -92,6 +109,25 @@ fun TeamScreen(equipId: Int, onPlayerClick: (Long) -> Unit) {
                     CircularProgressIndicator()
                     Spacer(Modifier.height(12.dp))
                     Text("Carregant plantilla…")
+                }
+            }
+        } else if (squad.isEmpty() && error != null) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(error!!, color = MaterialTheme.colorScheme.error)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Torna-ho a provar",
+                        modifier = Modifier.clickable { vm.refresh() },
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         } else {
