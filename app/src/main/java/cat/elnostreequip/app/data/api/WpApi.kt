@@ -16,8 +16,17 @@ interface WpApi {
         @Query("page") page: Int = 1,
         @Query("orderby") orderBy: String = "date",
         @Query("order") order: String = "desc",
-        @Query("_embed") embed: Boolean = true
+        @Query("_embed") embed: Boolean = true,
+        @Query("categories") categories: List<Int>? = null,
+        @Query("search") search: String? = null,
+        @Query("_fields") fields: String? = null
     ): List<WpPost>
+
+    @GET("posts/{id}")
+    suspend fun post(
+        @Path("id") id: Long,
+        @Query("_embed") embed: Boolean = true
+    ): WpPost
 
     @GET("jugadora")
     suspend fun jugadoras(

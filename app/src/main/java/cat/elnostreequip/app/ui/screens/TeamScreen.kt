@@ -18,6 +18,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -108,7 +112,11 @@ private fun PlayerRow(player: PlayerEntity, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
         Row(
             modifier = Modifier
@@ -116,36 +124,41 @@ private fun PlayerRow(player: PlayerEntity, onClick: () -> Unit) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Dorsal
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (player.dorsal >= 999) "–" else player.dorsal.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    textAlign = TextAlign.Center
+            // Foto amb insígnia de dorsal
+            Box(contentAlignment = Alignment.BottomEnd) {
+                AsyncImage(
+                    model = player.photoUrl,
+                    contentDescription = player.name,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
                 )
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    shadowElevation = 2.dp
+                ) {
+                    Text(
+                        text = if (player.dorsal >= 999) "–" else player.dorsal.toString(),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             }
-            Spacer(Modifier.width(12.dp))
-            // Foto
-            AsyncImage(
-                model = player.photoUrl,
-                contentDescription = player.name,
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(14.dp))
             // Nom + posició
             Column(Modifier.weight(1f)) {
-                Text(player.name, style = MaterialTheme.typography.titleSmall)
+                Text(
+                    player.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
                 if (player.position.isNotBlank()) {
+                    Spacer(Modifier.height(2.dp))
                     Text(
                         player.position,
                         style = MaterialTheme.typography.bodySmall,
@@ -153,6 +166,11 @@ private fun PlayerRow(player: PlayerEntity, onClick: () -> Unit) {
                     )
                 }
             }
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
         }
     }
 }

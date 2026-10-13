@@ -32,7 +32,7 @@ fun ArticleScreen(articleId: Long) {
 
     LaunchedEffect(articleId) {
         article = try {
-            app.repository.article(articleId)
+            app.repository.fetchArticle(articleId)
         } catch (_: Exception) {
             null
         }

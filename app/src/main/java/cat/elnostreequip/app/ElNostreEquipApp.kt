@@ -9,6 +9,7 @@ import cat.elnostreequip.app.data.ElNostreEquipRepository
 import cat.elnostreequip.app.data.api.EneClient
 import cat.elnostreequip.app.data.api.RetrofitClient
 import cat.elnostreequip.app.data.db.AppDatabase
+import cat.elnostreequip.app.data.db.MIGRATION_1_2
 import cat.elnostreequip.app.notifications.TopicManager
 
 class ElNostreEquipApp : Application() {
@@ -20,7 +21,9 @@ class ElNostreEquipApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        val db = Room.databaseBuilder(this, AppDatabase::class.java, "ene.db").build()
+        val db = Room.databaseBuilder(this, AppDatabase::class.java, "ene.db")
+            .addMigrations(MIGRATION_1_2)
+            .build()
         repository = ElNostreEquipRepository(RetrofitClient.api, db, EneClient.api)
         topicManager = TopicManager(this)
         createNotificationChannel()

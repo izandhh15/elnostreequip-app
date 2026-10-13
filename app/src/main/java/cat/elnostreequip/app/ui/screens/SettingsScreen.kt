@@ -1,5 +1,6 @@
 package cat.elnostreequip.app.ui.screens
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,7 +65,7 @@ private val LIVE_LABELS = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onOpenAdmin: () -> Unit) {
+fun SettingsScreen() {
     val app = LocalContext.current.applicationContext as ElNostreEquipApp
 
     Scaffold(
@@ -106,11 +107,7 @@ fun SettingsScreen(onOpenAdmin: () -> Unit) {
                 )
             }
             item { FollowedPlayersCard() }
-            item {
-                TextButton(onClick = onOpenAdmin) {
-                    Text("Mode directe (Izan)")
-                }
-            }
+
         }
     }
 }
@@ -122,7 +119,13 @@ private fun TeamNotificationCard(equipId: Int) {
     val scope = rememberCoroutineScope()
     val followed by topics.isTeamFollowed(equipId).collectAsState(initial = false)
 
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -194,7 +197,13 @@ private fun FollowedPlayersCard() {
         }
     }
 
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(

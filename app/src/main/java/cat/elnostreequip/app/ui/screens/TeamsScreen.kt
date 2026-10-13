@@ -1,7 +1,9 @@
 package cat.elnostreequip.app.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,9 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.data.TeamMapper
@@ -56,33 +62,59 @@ fun TeamsScreen(onTeamClick: (Int) -> Unit) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onTeamClick(equipId) }
+                        .clickable { onTeamClick(equipId) },
+                    shape = RoundedCornerShape(24.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
                 ) {
-                    Row(
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        MaterialTheme.colorScheme.primary,
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.72f)
+                                    )
+                                )
+                            )
+                            .padding(20.dp)
                     ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                TeamMapper.fullName(equipId),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Spacer(Modifier.height(2.dp))
-                            Text(
-                                if (followed) "El segueixes" else "Toca per veure la plantilla",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Switch(
-                            checked = followed,
-                            onCheckedChange = {
-                                scope.launch { app.topicManager.setTeamFollowed(equipId, it) }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    TeamMapper.shortName(equipId).uppercase(),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Black,
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    TeamMapper.fullName(equipId),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    if (followed) "El segueixes ✓" else "Toca per veure la plantilla",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                                )
                             }
-                        )
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null)
+                            Column(horizontalAlignment = Alignment.End) {
+                                Switch(
+                                    checked = followed,
+                                    onCheckedChange = {
+                                        scope.launch { app.topicManager.setTeamFollowed(equipId, it) }
+                                    }
+                                )
+                                Icon(
+                                    Icons.Filled.ChevronRight,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
                     }
                 }
             }

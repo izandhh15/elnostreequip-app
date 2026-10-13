@@ -24,7 +24,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import cat.elnostreequip.app.ui.screens.AdminLiveScreen
 import cat.elnostreequip.app.ui.screens.ArticleScreen
 import cat.elnostreequip.app.ui.screens.HomeScreen
 import cat.elnostreequip.app.ui.screens.MatchesScreen
@@ -117,11 +116,12 @@ private fun ElNostreEquipNav() {
             ) { entry ->
                 PlayerScreen(playerId = entry.arguments?.getLong("id") ?: 0L)
             }
-            composable("matches") { MatchesScreen() }
-            composable("settings") {
-                SettingsScreen(onOpenAdmin = { navController.navigate("admin") })
+            composable("matches") {
+                MatchesScreen(onArticleClick = { id -> navController.navigate("article/$id") })
             }
-            composable("admin") { AdminLiveScreen() }
+            composable("settings") {
+                SettingsScreen()
+            }
         }
     }
 }

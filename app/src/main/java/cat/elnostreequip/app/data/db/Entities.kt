@@ -26,5 +26,7 @@ data class PlayerEntity(
     val position: String,
     val photoUrl: String?,
     val bioHtml: String,
-    val teamId: Int
+    val teamId: Int,
+    /** Files d'estadístiques (JSON de PlayerStatRow), o "[]" si no n'hi ha. */
+    val statsJson: String = "[]"
 )

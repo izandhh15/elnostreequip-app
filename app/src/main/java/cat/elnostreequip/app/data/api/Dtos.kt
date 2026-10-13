@@ -34,6 +34,7 @@ data class WpJugadora(
     /** Dorsal i posició exposats pel plugin «El Nostre Equip — Push & Directe». */
     @SerializedName("ene_dorsal") val eneDorsal: JsonElement? = null,
     @SerializedName("ene_posicio") val enePosicio: JsonElement? = null,
+    @SerializedName("ene_stats") val eneStats: List<PlayerStatRow>? = null,
     @SerializedName("featured_media") val featuredMedia: Long = 0,
     /**
      * Meta/ACF: l'API de elnostreequip.cat retorna [] (array buit) quan no hi ha camps,
@@ -76,6 +77,21 @@ fun WpEmbedded?.featuredImageUrl(): String? {
     val medium = media.mediaDetails?.sizes?.get("medium")?.sourceUrl
     return medium?.takeIf { it.isNotBlank() } ?: media.sourceUrl.takeIf { it.isNotBlank() }
 }
+
+/** Fila d'estadístiques del plugin (taula ene-stats-table). */
+data class PlayerStatRow(
+    val team: String = "",
+    val label: String = "",
+    /** comp = competició oficial, pre = pretemporada, total = total oficial */
+    val kind: String = "comp",
+    val pj: Int = 0,
+    val pt: Int = 0,
+    val min: Int = 0,
+    val gols: Int = 0,
+    val assists: Int = 0,
+    val grogues: Int = 0,
+    val roges: Int = 0
+)
 
 /** Dorsal del plugin (pot venir com a número o com a text). */
 fun WpJugadora.dorsal(): Int? {

@@ -8,6 +8,7 @@ import cat.elnostreequip.app.data.api.featuredImageUrl
 import cat.elnostreequip.app.data.api.dorsal
 import cat.elnostreequip.app.data.api.field
 import cat.elnostreequip.app.data.api.posicio
+import com.google.gson.Gson
 import cat.elnostreequip.app.data.db.AppDatabase
 import cat.elnostreequip.app.data.db.ArticleEntity
 import cat.elnostreequip.app.data.db.PlayerEntity
@@ -27,22 +28,33 @@ class ElNostreEquipRepository(
 
     suspend fun refreshArticles() {
         val posts = api.posts(perPage = 30)
-        val entities = posts.map { p ->
-            ArticleEntity(
-                id = p.id,
-                title = (p.title?.rendered ?: "").htmlToText(),
-                excerpt = (p.excerpt?.rendered ?: "").htmlToText().take(220),
-                contentHtml = p.content?.rendered ?: "",
-                imageUrl = p.embedded.featuredImageUrl(),
-                date = p.date,
-                link = p.link,
-                teamId = TeamMapper.teamForCategories(p.categories)
-            )
-        }
-        db.articleDao().replaceAll(entities)
+        db.articleDao().replaceAll(posts.map { postToEntity(it) })
     }
 
+    private fun postToEntity(p: WpPost) = ArticleEntity(
+        id = p.id,
+        title = (p.title?.rendered ?: "").htmlToText(),
+        excerpt = (p.excerpt?.rendered ?: "").htmlToText().take(220),
+        contentHtml = p.content?.rendered ?: "",
+        imageUrl = p.embedded.featuredImageUrl(),
+        date = p.date,
+        link = p.link,
+        teamId = TeamMapper.teamForCategories(p.categories)
+    )
+
     suspend fun article(id: Long): ArticleEntity? = db.articleDao().get(id)
+
+    /** Article per id: caché, i si no hi és, el baixa del web i el guarda. */
+    suspend fun fetchArticle(id: Long): ArticleEntity? {
+        db.articleDao().get(id)?.let { return it }
+        return try {
+            val entity = postToEntity(api.post(id))
+            db.articleDao().insertAll(listOf(entity))
+            entity
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     fun observeSquad(equipId: Int): Flow<List<PlayerEntity>> =
         db.playerDao().observeByTeam(equipId)
@@ -65,7 +77,8 @@ class ElNostreEquipRepository(
                 position = position,
                 photoUrl = j.embedded.featuredImageUrl(),
                 bioHtml = j.content?.rendered ?: "",
-                teamId = equipId
+                teamId = equipId,
+                statsJson = Gson().toJson(j.eneStats ?: emptyList<Any>())
             )
         }
         db.playerDao().replaceByTeam(equipId, entities)
@@ -85,6 +98,24 @@ class ElNostreEquipRepository(
         }
 
     data class PlayerHit(val id: Long, val name: String, val teamId: Int?, val photoUrl: String?)
+
+    /** Article lleuger de la categoria Partits (per vincular partits ↔ cròniques/prèvies). */
+    data class RelatedArticle(val id: Long, val title: String, val link: String, val date: String)
+
+    suspend fun partitsArticles(): List<RelatedArticle> =
+        api.posts(perPage = 40, categories = listOf(PARTITS_CATEGORY), embed = false).map { p ->
+            RelatedArticle(
+                id = p.id,
+                title = (p.title?.rendered ?: "").htmlToText(),
+                link = p.link,
+                date = p.date
+            )
+        }
+
+    companion object {
+        /** Categoria «Partits» del web (cròniques i prèvies). */
+        const val PARTITS_CATEGORY = 8
+    }
 
     /**
      * Partits del calendari (Google Calendar via plugin ene/v1/calendari).
