@@ -53,6 +53,7 @@ import androidx.lifecycle.viewModelScope
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.R
 import cat.elnostreequip.app.data.ElNostreEquipRepository
+import cat.elnostreequip.app.data.PartitPost
 import cat.elnostreequip.app.data.TeamMapper
 import cat.elnostreequip.app.data.api.CalendarMatch
 import cat.elnostreequip.app.data.db.ArticleEntity
@@ -81,8 +82,8 @@ class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
     private val _nextMatch = MutableStateFlow<Pair<Int, CalendarMatch>?>(null)
     val nextMatch: StateFlow<Pair<Int, CalendarMatch>?> = _nextMatch
 
-    private val _partitPosts = MutableStateFlow<List<ElNostreEquipRepository.PartitPost>>(emptyList())
-    val partitPosts: StateFlow<List<ElNostreEquipRepository.PartitPost>> = _partitPosts
+    private val _partitPosts = MutableStateFlow<List<PartitPost>>(emptyList())
+    val partitPosts: StateFlow<List<PartitPost>> = _partitPosts
 
     private val _refreshing = MutableStateFlow(false)
     val refreshing: StateFlow<Boolean> = _refreshing
@@ -158,6 +159,7 @@ fun HomeScreen(
     val articles by vm.articles.collectAsState()
     val teamFilter by vm.teamFilter.collectAsState()
     val nextMatch by vm.nextMatch.collectAsState()
+    val partitPosts by vm.partitPosts.collectAsState()
     val refreshing by vm.refreshing.collectAsState()
     val error by vm.error.collectAsState()
 
@@ -228,6 +230,12 @@ fun HomeScreen(
                         }
                     }
 
+                    if (partitPosts.isNotEmpty() && teamFilter == null) {
+                        item(key = "partitdestacat") {
+                            PartitDestacatCard(partit = partitPosts.first())
+                        }
+                    }
+
                     // Pròxim partit (franja compacta)
                     if (nextMatch != null && teamFilter == null) {
                         item(key = "nextmatch") {
@@ -284,9 +292,40 @@ fun HomeScreen(
 
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
-/** Test: funció normal amb PartitPost (no composable). */
-private fun testPartitTitle(p: ElNostreEquipRepository.PartitPost): String {
-    return p.title
+private fun PartitDestacatCard(partit: PartitPost) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Text(
+                "PARTIT",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                partit.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                relativeTime(partit.date),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 }
 
 private fun SlimNextMatchCard(

@@ -138,12 +138,6 @@ class ElNostreEquipRepository(
             )
         }
 
-    data class PartitPost(
-        val id: Long,
-        val title: String,
-        val date: String,
-        val link: String
-    )
 
     companion object {
         /** Categoria «Partits» del web (cròniques i prèvies). */
@@ -194,3 +188,11 @@ private fun String.htmlToText(): String {
         this
     }
 }
+
+/** Entrada del tipus "partit" del WordPress (fora de la classe per evitar problemes del compilador). */
+data class PartitPost(
+    val id: Long,
+    val title: String,
+    val date: String,
+    val link: String
+)
