@@ -1,1 +1,25 @@
-cGFja2FnZSBjYXQuZWxub3N0cmVlcXVpcC5hcHAuZGF0YS5hcGkKCmltcG9ydCBva2h0dHAzLk9rSHR0cENsaWVudAppbXBvcnQgb2todHRwMy5sb2dnaW5nLkh0dHBMb2dnaW5nSW50ZXJjZXB0b3IKaW1wb3J0IHJldHJvZml0Mi5SZXRyb2ZpdAppbXBvcnQgcmV0cm9maXQyLmNvbnZlcnRlci5nc29uLkdzb25Db252ZXJ0ZXJGYWN0b3J5CgpvYmplY3QgUmV0cm9maXRDbGllbnQgewogICAgY29uc3QgdmFsIEJBU0VfVVJMID0gImh0dHBzOi8vZWxub3N0cmVlcXVpcC5jYXQvd3AtanNvbi93cC92Mi8iCgogICAgdmFsIGFwaTogV3BBcGkgYnkgbGF6eSB7CiAgICAgICAgdmFsIGxvZ2dpbmcgPSBIdHRwTG9nZ2luZ0ludGVyY2VwdG9yKCkuYXBwbHkgewogICAgICAgICAgICBsZXZlbCA9IEh0dHBMb2dnaW5nSW50ZXJjZXB0b3IuTGV2ZWwuQkFTSUMKICAgICAgICB9CiAgICAgICAgdmFsIGNsaWVudCA9IE9rSHR0cENsaWVudC5CdWlsZGVyKCkKICAgICAgICAgICAgLmFkZEludGVyY2VwdG9yKGxvZ2dpbmcpCiAgICAgICAgICAgIC5idWlsZCgpCiAgICAgICAgUmV0cm9maXQuQnVpbGRlcigpCiAgICAgICAgICAgIC5iYXNlVXJsKEJBU0VfVVJMKQogICAgICAgICAgICAuY2xpZW50KGNsaWVudCkKICAgICAgICAgICAgLmFkZENvbnZlcnRlckZhY3RvcnkoR3NvbkNvbnZlcnRlckZhY3RvcnkuY3JlYXRlKCkpCiAgICAgICAgICAgIC5idWlsZCgpCiAgICAgICAgICAgIC5jcmVhdGUoV3BBcGk6OmNsYXNzLmphdmEpCiAgICB9Cn0K
+package cat.elnostreequip.app.data.api
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object RetrofitClient {
+    const val BASE_URL = "https://elnostreequip.cat/wp-json/wp/v2/"
+
+    val api: WpApi by lazy {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BASIC
+        }
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(WpApi::class.java)
+    }
+}
