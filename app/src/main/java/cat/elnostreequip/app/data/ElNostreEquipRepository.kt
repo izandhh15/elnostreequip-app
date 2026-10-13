@@ -4,6 +4,7 @@ import android.text.Html
 import cat.elnostreequip.app.data.api.CalendarMatch
 import cat.elnostreequip.app.data.api.EneApi
 import cat.elnostreequip.app.data.api.WpApi
+import cat.elnostreequip.app.data.api.WpPost
 import cat.elnostreequip.app.data.api.featuredImageUrl
 import cat.elnostreequip.app.data.api.dorsal
 import cat.elnostreequip.app.data.api.field
