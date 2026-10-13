@@ -81,3 +81,24 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-firestore")
 }
+
+// Branding: els PNGs (icones + logo) es pugen al repo com a .b64 perquè
+// l'eina de publicació només accepta text pla. Aquesta tasca els descodifica
+// a src/main/res abans de compilar els recursos.
+val decodeBranding by tasks.registering {
+    val srcDir = file("branding-b64")
+    val resDir = file("src/main/res")
+    inputs.dir(srcDir)
+    doLast {
+        srcDir.walkTopDown()
+            .filter { it.isFile && it.extension == "b64" }
+            .forEach { f ->
+                val out = resDir.resolve(f.relativeTo(srcDir).path.removeSuffix(".b64"))
+                out.parentFile.mkdirs()
+                out.writeBytes(java.util.Base64.getDecoder().decode(f.readText().trim()))
+            }
+    }
+}
+tasks.matching { it.name.startsWith("merge") && it.name.contains("Resources") }.configureEach {
+    dependsOn(decodeBranding)
+}

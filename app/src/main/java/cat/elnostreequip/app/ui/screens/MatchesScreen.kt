@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MatchesScreen() {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Partits") }) }
+        topBar = { EneTopBar("Partits") }
     ) { padding ->
         LazyColumn(
             modifier = Modifier

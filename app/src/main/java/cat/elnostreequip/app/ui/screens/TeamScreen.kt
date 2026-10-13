@@ -72,7 +72,7 @@ fun TeamScreen(equipId: Int, onPlayerClick: (Long) -> Unit) {
     val squad by vm.squad.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(TeamMapper.fullName(equipId)) }) }
+        topBar = { EneTopBar(TeamMapper.fullName(equipId)) }
     ) { padding ->
         if (squad.isEmpty()) {
             Box(

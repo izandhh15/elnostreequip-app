@@ -68,7 +68,7 @@ fun SettingsScreen(onOpenAdmin: () -> Unit) {
     val app = LocalContext.current.applicationContext as ElNostreEquipApp
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Ajustos") }) }
+        topBar = { EneTopBar("Ajustos") }
     ) { padding ->
         LazyColumn(
             modifier = Modifier

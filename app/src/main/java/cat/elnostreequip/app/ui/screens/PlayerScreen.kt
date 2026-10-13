@@ -60,9 +60,7 @@ fun PlayerScreen(playerId: Long) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text(player?.name ?: "Jugadora", maxLines = 1)
-            })
+            EneTopBar(player?.name ?: "Jugadora")
         }
     ) { padding ->
         when {

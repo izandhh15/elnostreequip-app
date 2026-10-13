@@ -71,7 +71,7 @@ fun AdminLiveScreen() {
     var unlocked by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Mode directe") }) }
+        topBar = { EneTopBar("Mode directe") }
     ) { padding ->
         if (!unlocked) {
             PinGate(

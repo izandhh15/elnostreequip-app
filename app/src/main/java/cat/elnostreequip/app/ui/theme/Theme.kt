@@ -7,22 +7,26 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// Blanc-i-negre del València, amb taronja valencianista d'accent.
-private val ValencianOrange = Color(0xFFF28C28)
-private val ValencianBlack = Color(0xFF141414)
+// Colors corporatius d'El Nostre Equip (del logo oficial).
+private val EneBlue = Color(0xFF002070)
+private val EneGold = Color(0xFFE0A800)
+private val EneRed = Color(0xFFC81010)
 
 private val LightColors = lightColorScheme(
-    primary = Color(0xFF9C4A00),
+    primary = EneBlue,
     onPrimary = Color.White,
-    secondary = ValencianOrange,
+    secondary = EneGold,
+    onSecondary = Color(0xFF1A1A1A),
+    tertiary = EneRed,
     background = Color(0xFFFFFBF7),
     surface = Color.White
 )
 
 private val DarkColors = darkColorScheme(
-    primary = ValencianOrange,
-    onPrimary = ValencianBlack,
-    secondary = ValencianOrange,
+    primary = Color(0xFF8FA8FF),
+    onPrimary = Color(0xFF00124A),
+    secondary = EneGold,
+    tertiary = Color(0xFFFF8A80),
     background = Color(0xFF121212),
     surface = Color(0xFF1E1E1E)
 )

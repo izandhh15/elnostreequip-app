@@ -118,7 +118,7 @@ fun HomeScreen(onArticleClick: (Long) -> Unit) {
     val visible = articles
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("El Nostre Equip") }) }
+        topBar = { EneTopBar("El Nostre Equip") }
     ) { padding ->
         Column(
             modifier = Modifier

@@ -41,7 +41,7 @@ fun TeamsScreen(onTeamClick: (Int) -> Unit) {
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Equips") }) }
+        topBar = { EneTopBar("Equips") }
     ) { padding ->
         LazyColumn(
             modifier = Modifier

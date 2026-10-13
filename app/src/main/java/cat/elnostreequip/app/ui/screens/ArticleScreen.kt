@@ -41,13 +41,7 @@ fun ArticleScreen(articleId: Long) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text(
-                    article?.title ?: "Article",
-                    maxLines = 1,
-                    style = MaterialTheme.typography.titleMedium
-                )
-            })
+            EneTopBar(article?.title ?: "Article")
         }
     ) { padding ->
         when {
