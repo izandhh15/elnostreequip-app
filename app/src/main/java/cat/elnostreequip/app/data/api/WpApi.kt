@@ -57,4 +57,9 @@ interface WpApi {
 
     @GET("media/{id}")
     suspend fun media(@Path("id") id: Long): WpMedia
+
+    @GET("partit")
+    suspend fun partits(
+        @Query("per_page") perPage: Int = 5
+    ): List<WpPost>
 }
