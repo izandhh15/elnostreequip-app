@@ -128,6 +128,24 @@ class ElNostreEquipRepository(
             )
         }
 
+    /** Entrades del tipus «partit» (els partits que crea Izan). */
+    suspend fun partitPosts(): List<PartitPost> =
+        api.partits(perPage = 5).map { p ->
+            PartitPost(
+                id = p.id,
+                title = (p.title?.rendered ?: "").htmlToText(),
+                date = p.date,
+                link = p.link
+            )
+        }
+
+    data class PartitPost(
+        val id: Long,
+        val title: String,
+        val date: String,
+        val link: String
+    )
+
     companion object {
         /** Categoria «Partits» del web (cròniques i prèvies). */
         const val PARTITS_CATEGORY = 8
