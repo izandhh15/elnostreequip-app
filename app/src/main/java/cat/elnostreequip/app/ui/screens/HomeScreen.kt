@@ -228,12 +228,6 @@ fun HomeScreen(
                         }
                     }
 
-                    if (vm.partitPosts.value.isNotEmpty() && teamFilter == null) {
-                        item(key = "partitdestacat") {
-                            PartitDestacatCard(partit = vm.partitPosts.value.first())
-                        }
-                    }
-
                     // Pròxim partit (franja compacta)
                     if (nextMatch != null && teamFilter == null) {
                         item(key = "nextmatch") {
@@ -290,12 +284,6 @@ fun HomeScreen(
 
 /** Franja compacta del pròxim partit (sota els chips). */
 @Composable
-private fun PartitDestacatCard(
-    partit: ElNostreEquipRepository.PartitPost
-) {
-    Text(partit.title)
-}
-
 private fun SlimNextMatchCard(
     match: CalendarMatch,
     teamId: Int,
