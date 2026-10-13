@@ -1,5 +1,6 @@
 package cat.elnostreequip.app.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,12 +44,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cat.elnostreequip.app.ElNostreEquipApp
+import cat.elnostreequip.app.R
 import cat.elnostreequip.app.data.ElNostreEquipRepository
 import cat.elnostreequip.app.data.TeamMapper
 import cat.elnostreequip.app.data.api.CalendarMatch
@@ -160,11 +163,11 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "EL NOSTRE EQUIP",
-                        fontWeight = FontWeight.Black,
-                        color = EneBlue,
-                        style = MaterialTheme.typography.titleLarge
+                    Image(
+                        painter = painterResource(R.drawable.ene_logo),
+                        contentDescription = "El Nostre Equip",
+                        modifier = Modifier.height(40.dp),
+                        contentScale = ContentScale.Fit
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

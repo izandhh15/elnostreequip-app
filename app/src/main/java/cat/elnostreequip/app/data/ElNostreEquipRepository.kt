@@ -32,7 +32,21 @@ class ElNostreEquipRepository(
         db.articleDao().replaceAll(posts.map { postToEntity(it) })
     }
 
-    private fun postToEntity(p: WpPost) = ArticleEntity(
+    private var categoryCache: Map<Int, String>? = null
+
+    private suspend fun resolveCategoryNames(ids: List<Int>): List<String> {
+        if (categoryCache == null) {
+            categoryCache = try {
+                api.categories().associate { it.id to it.name }
+            } catch (_: Exception) {
+                emptyMap()
+            }
+        }
+        val cache = categoryCache ?: emptyMap()
+        return ids.mapNotNull { cache[it]?.takeIf { n -> n.isNotBlank() } }
+    }
+
+    private suspend fun postToEntity(p: WpPost) = ArticleEntity(
         id = p.id,
         title = (p.title?.rendered ?: "").htmlToText(),
         excerpt = (p.excerpt?.rendered ?: "").htmlToText().take(220),
@@ -40,7 +54,8 @@ class ElNostreEquipRepository(
         imageUrl = p.embedded.featuredImageUrl(),
         date = p.date,
         link = p.link,
-        teamId = TeamMapper.teamForCategories(p.categories)
+        teamId = TeamMapper.teamForCategories(p.categories),
+        categoryNames = resolveCategoryNames(p.categories).joinToString("|")
     )
 
     suspend fun article(id: Long): ArticleEntity? = db.articleDao().get(id)

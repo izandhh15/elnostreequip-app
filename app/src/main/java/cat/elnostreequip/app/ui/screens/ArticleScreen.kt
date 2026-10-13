@@ -105,25 +105,31 @@ private fun parseArticle(html: String): List<ArticleBlock> {
     return blocks
 }
 
-/** Píndoles de categoria com al web (colors per equip). */
-private fun teamPills(teamId: Int?): List<Pair<String, Color>> = when (teamId) {
-    TeamMapper.PRIMER_EQUIP -> listOf(
-        "València CF Femení" to Color(0xFFE2001A),
-        "Primera Federació" to Color(0xFF1A56DB)
-    )
-    TeamMapper.EQUIP_B -> listOf(
-        "València CF Femení B" to Color(0xFF1A56DB),
-        "Segona Federació" to Color(0xFF7C3AED)
-    )
-    TeamMapper.EQUIP_C -> listOf(
-        "València CF Femení C" to Color(0xFF16803C),
-        "Acadèmia VCF" to Color(0xFF16803C)
-    )
-    TeamMapper.EQUIP_D -> listOf(
-        "València CF Femení D" to Color(0xFF7C3AED),
-        "Acadèmia VCF" to Color(0xFF16803C)
-    )
-    else -> listOf("El Nostre Equip" to Color(0xFFE2001A))
+/** Paleta de colors de píndoles com al web. */
+private val PILL_COLORS = listOf(
+    Color(0xFFE2001A), // roig
+    Color(0xFF1A56DB), // blau
+    Color(0xFF16803C), // verd
+    Color(0xFF7C3AED), // lila
+    Color(0xFFB45309), // taronja fosc
+    Color(0xFF0E7490)  // turquesa
+)
+
+/** Píndoles amb les categories reals del WordPress. */
+private fun categoryPills(article: ArticleEntity): List<Pair<String, Color>> {
+    val names = article.categoryNames.split("|").filter { it.isNotBlank() }
+    if (names.isEmpty()) {
+        // Fallback: nom de l'equip
+        val fallback = when (article.teamId) {
+            TeamMapper.PRIMER_EQUIP -> "València CF Femení"
+            TeamMapper.EQUIP_B -> "València CF Femení B"
+            TeamMapper.EQUIP_C -> "València CF Femení C"
+            TeamMapper.EQUIP_D -> "València CF Femení D"
+            else -> "El Nostre Equip"
+        }
+        return listOf(fallback to PILL_COLORS[0])
+    }
+    return names.mapIndexed { i, n -> n to PILL_COLORS[i % PILL_COLORS.size] }
 }
 
 private fun prettyDate(iso: String): String = try {
@@ -200,7 +206,7 @@ fun ArticleScreen(articleId: Long, onBack: () -> Unit) {
 
                     // Breadcrumbs com al web
                     Text(
-                        "Inici / ${teamPills(a.teamId).firstOrNull()?.first ?: "Notícies"}",
+                        "Inici / ${a.categoryNames.split("|").firstOrNull { it.isNotBlank() } ?: "Notícies"}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -211,7 +217,7 @@ fun ArticleScreen(articleId: Long, onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        teamPills(a.teamId).forEach { (label, color) ->
+                        categoryPills(a).forEach { (label, color) ->
                             Surface(
                                 color = color,
                                 shape = RoundedCornerShape(6.dp)

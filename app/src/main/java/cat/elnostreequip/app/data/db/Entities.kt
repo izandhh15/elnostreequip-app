@@ -14,7 +14,9 @@ data class ArticleEntity(
     val date: String,
     val link: String,
     /** equipId según TeamMapper, o null si no se pudo mapear la categoría. */
-    val teamId: Int?
+    val teamId: Int?,
+    /** Noms de categories del WP separats per | (per a les píndoles). */
+    val categoryNames: String = ""
 )
 
 /** Jugadora cacheada de una plantilla. dorsal=999 si se desconoce (va al final). */
