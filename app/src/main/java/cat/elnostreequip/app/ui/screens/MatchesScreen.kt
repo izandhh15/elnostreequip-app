@@ -168,6 +168,22 @@ private fun relatedFor(
     }.take(2)
 }
 
+/**
+ * Colors per competició (demanats per Izan):
+ * Liga F blau fosc, Copa lila, Segona RFEF lila, Tercera RFEF taronja, Autonòmica roig corall.
+ */
+fun competitionColor(comp: String): androidx.compose.ui.graphics.Color {
+    val cc = comp.lowercase()
+    return when {
+        "lliga f" in cc || "ligaf" in cc || "liga f" in cc -> androidx.compose.ui.graphics.Color(0xFF1E3A8A)
+        "copa" in cc -> androidx.compose.ui.graphics.Color(0xFF7C3AED)
+        "2rfef" in cc || "segona" in cc || "segunda" in cc -> androidx.compose.ui.graphics.Color(0xFFA855F7)
+        "3rfef" in cc || "tercera" in cc -> androidx.compose.ui.graphics.Color(0xFFFF7B00)
+        "autonom" in cc || "llcom" in cc || "preferent" in cc -> androidx.compose.ui.graphics.Color(0xFFFF6B6B)
+        else -> androidx.compose.ui.graphics.Color(0xFF6B7280)
+    }
+}
+
 private val VALENCIAN_DATE = DateTimeFormatter.ofPattern("EEEE d MMM", Locale("ca"))
 
 private fun CalendarMatch.prettyDate(): String = try {
@@ -306,14 +322,14 @@ private fun MatchCard(
                 DateBadge(match)
                 Column(Modifier.weight(1f)) {
                     Surface(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        color = competitionColor(match.competition),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
                             match.competition,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = androidx.compose.ui.graphics.Color.White,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
@@ -397,13 +413,13 @@ private fun DateBadge(match: CalendarMatch) {
             .clip(RoundedCornerShape(14.dp))
             .background(
                 if (match.past) MaterialTheme.colorScheme.surfaceVariant
-                else MaterialTheme.colorScheme.primary
+                else cat.elnostreequip.app.ui.theme.EneOrange
             )
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val fg = if (match.past) MaterialTheme.colorScheme.onSurfaceVariant
-        else MaterialTheme.colorScheme.onPrimary
+        else androidx.compose.ui.graphics.Color.White
         Text(
             parts.first,
             style = MaterialTheme.typography.titleLarge,
