@@ -1,0 +1,12 @@
+# Gradle / Android Studio
+.gradle/
+build/
+**/build/
+local.properties
+*.iml
+.idea/
+.DS_Store
+
+# Keystore de release (no subir claves)
+*.jks
+*.keystore
