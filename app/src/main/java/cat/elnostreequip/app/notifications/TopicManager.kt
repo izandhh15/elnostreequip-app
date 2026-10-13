@@ -162,7 +162,7 @@ class TopicManager(private val context: Context) {
 
     companion object {
         private const val TAG = "TopicManager"
-        // TODO: endpoint real del backend Wasmer (DESIGN §6) cuando exista.
-        const val DEFAULT_ENDPOINT = "https://elnostreequip-push.wasmer.app/api/publish"
+        // Endpoint del plugin WP "El Nostre Equip — Push & Directe" (la web esta en Nominalia).
+        const val DEFAULT_ENDPOINT = "https://elnostreequip.cat/wp-json/ene/v1/live"
     }
 }
