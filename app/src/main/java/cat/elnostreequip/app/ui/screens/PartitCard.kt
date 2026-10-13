@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.data.ElNostreEquipRepository
@@ -44,9 +45,9 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun PartitDestacatCard(
-    partit: ElNostreEquipRepository.PartitPost,
-    app: ElNostreEquipApp
+    partit: ElNostreEquipRepository.PartitPost
 ) {
+    val app = LocalContext.current.applicationContext as ElNostreEquipApp
     var live by remember { mutableStateOf<MatchLiveData?>(null) }
     var loading by remember { mutableStateOf(true) }
 
