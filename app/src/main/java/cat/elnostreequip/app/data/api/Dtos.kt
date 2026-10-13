@@ -12,6 +12,7 @@ data class Rendered(
 data class WpPost(
     val id: Long,
     val date: String = "",
+    val modified: String = "",
     val slug: String = "",
     val link: String = "",
     val title: Rendered? = null,

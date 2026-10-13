@@ -134,6 +134,7 @@ class ElNostreEquipRepository(
                 id = p.id,
                 title = (p.title?.rendered ?: "").htmlToText(),
                 date = p.date,
+                modified = p.modified,
                 link = p.link
             )
         }
@@ -142,6 +143,7 @@ class ElNostreEquipRepository(
         val id: Long,
         val title: String,
         val date: String,
+        val modified: String = "",
         val link: String
     )
 
