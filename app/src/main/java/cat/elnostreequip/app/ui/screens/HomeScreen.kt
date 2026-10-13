@@ -1,7 +1,6 @@
 package cat.elnostreequip.app.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +46,7 @@ import androidx.lifecycle.viewModelScope
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.data.ElNostreEquipRepository
 import cat.elnostreequip.app.data.TeamMapper
+import cat.elnostreequip.app.data.api.CalendarMatch
 import cat.elnostreequip.app.data.db.ArticleEntity
 import cat.elnostreequip.app.notifications.TopicManager
 import coil.compose.AsyncImage
@@ -55,6 +55,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
     private val repo: ElNostreEquipRepository = app.repository
@@ -76,6 +79,9 @@ class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
     val articles: StateFlow<List<ArticleEntity>> =
         repo.observeArticles().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    private val _nextMatch = MutableStateFlow<Pair<Int, CalendarMatch>?>(null)
+    val nextMatch: StateFlow<Pair<Int, CalendarMatch>?> = _nextMatch
+
     private val _refreshing = MutableStateFlow(false)
     val refreshing: StateFlow<Boolean> = _refreshing
 
@@ -94,9 +100,13 @@ class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
                 repo.refreshArticles()
             } catch (e: Exception) {
                 _error.value = "No s'ha pogut actualitzar: ${e.message}"
-            } finally {
-                _refreshing.value = false
             }
+            try {
+                val teams = followedTeams.value.ifEmpty { TeamMapper.ALL.toSet() }
+                _nextMatch.value = repo.nextMatch(teams.toList())
+            } catch (_: Exception) {
+            }
+            _refreshing.value = false
         }
     }
 
@@ -104,6 +114,9 @@ class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
         viewModelScope.launch {
             try {
                 topics.setTeamFollowed(equipId, on)
+                val teams = (if (on) followedTeams.value + equipId else followedTeams.value - equipId)
+                    .ifEmpty { TeamMapper.ALL.toSet() }
+                _nextMatch.value = repo.nextMatch(teams.toList())
             } catch (e: Exception) {
                 _error.value = "Error guardant la preferència"
             }
@@ -111,18 +124,32 @@ class HomeViewModel(app: ElNostreEquipApp) : ViewModel() {
     }
 }
 
+private fun greeting(): String {
+    val hour = java.time.LocalTime.now().hour
+    return when (hour) {
+        in 6..12 -> "Bon dia"
+        in 13..20 -> "Bona vesprada"
+        else -> "Bona nit"
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun HomeScreen(onArticleClick: (Long) -> Unit) {
+fun HomeScreen(
+    onArticleClick: (Long) -> Unit,
+    onMatchesClick: () -> Unit
+) {
     val vm: HomeViewModel = appViewModel { HomeViewModel(it) }
     val articles by vm.articles.collectAsState()
     val followed by vm.followedTeams.collectAsState()
+    val nextMatch by vm.nextMatch.collectAsState()
     val refreshing by vm.refreshing.collectAsState()
     val error by vm.error.collectAsState()
 
     val pullState = rememberPullRefreshState(refreshing, { vm.refresh() })
-
-    val visible = articles
+    val today = LocalDate.now().format(
+        DateTimeFormatter.ofPattern("EEEE d MMMM", Locale("ca"))
+    ).replaceFirstChar { it.uppercaseChar() }
 
     Scaffold(
         topBar = { EneTopBar("El Nostre Equip") }
@@ -133,56 +160,99 @@ fun HomeScreen(onArticleClick: (Long) -> Unit) {
                 .padding(padding)
                 .pullRefresh(pullState)
         ) {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(TeamMapper.ALL) { equipId ->
-                    FilterChip(
-                        selected = equipId in followed,
-                        onClick = { vm.toggleTeam(equipId, equipId !in followed) },
-                        label = { Text(TeamMapper.shortName(equipId)) }
-                    )
-                }
-            }
-            if (error != null) {
-                Text(
-                    text = error!!,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                )
-            }
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopCenter
             ) {
-                if (visible.isEmpty() && !refreshing) {
-                    Text(
-                        "Encara no hi ha articles. Estira per actualitzar.",
-                        modifier = Modifier.padding(24.dp)
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
-                    ) {
-                        if (visible.isNotEmpty()) {
-                            item(key = "hero") {
-                                HeroArticleCard(
-                                    article = visible[0],
-                                    onClick = { onArticleClick(visible[0].id) }
-                                )
-                            }
-                            items(visible.drop(1), key = { it.id }) { article ->
-                                CompactArticleCard(
-                                    article = article,
-                                    onClick = { onArticleClick(article.id) }
-                                )
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    // Salutació
+                    item(key = "greeting") {
+                        Column(Modifier.padding(horizontal = 20.dp)) {
+                            Text(
+                                greeting(),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Black
+                            )
+                            Text(
+                                today,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    // Pròxim partit (heroi)
+                    if (nextMatch != null) {
+                        item(key = "nextmatch") {
+                            NextMatchHeroCard(
+                                match = nextMatch!!.second,
+                                teamId = nextMatch!!.first,
+                                onClick = onMatchesClick
+                            )
+                        }
+                    }
+
+                    // Equips seguits
+                    item(key = "teams") {
+                        Column {
+                            SectionHeader("Els teus equips")
+                            LazyRow(
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(TeamMapper.ALL) { equipId ->
+                                    FilterChip(
+                                        selected = equipId in followed,
+                                        onClick = { vm.toggleTeam(equipId, equipId !in followed) },
+                                        label = { Text(TeamMapper.shortName(equipId)) }
+                                    )
+                                }
                             }
                         }
-                        item { Spacer(Modifier.height(8.dp)) }
                     }
+
+                    // Notícies
+                    if (articles.isNotEmpty()) {
+                        item(key = "newsheader") {
+                            SectionHeader("Últimes notícies")
+                        }
+                        item(key = "hero") {
+                            HeroArticleCard(
+                                article = articles[0],
+                                onClick = { onArticleClick(articles[0].id) }
+                            )
+                        }
+                        items(articles.drop(1), key = { it.id }) { article ->
+                            CompactArticleCard(
+                                article = article,
+                                onClick = { onArticleClick(article.id) }
+                            )
+                        }
+                    } else if (!refreshing) {
+                        item {
+                            Text(
+                                "Encara no hi ha articles. Estira per actualitzar.",
+                                modifier = Modifier.padding(24.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    if (error != null) {
+                        item {
+                            Text(
+                                error!!,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(horizontal = 20.dp)
+                            )
+                        }
+                    }
+
+                    item { Spacer(Modifier.height(12.dp)) }
                 }
                 PullRefreshIndicator(refreshing, pullState, Modifier.align(Alignment.TopCenter))
             }
@@ -196,8 +266,9 @@ private fun HeroArticleCard(article: ArticleEntity, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+            .padding(horizontal = 16.dp)
+            .pressScale(onClick),
+        shape = RoundedCornerShape(28.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box {
@@ -226,7 +297,7 @@ private fun HeroArticleCard(article: ArticleEntity, onClick: () -> Unit) {
                         Brush.verticalGradient(
                             listOf(
                                 Color.Transparent,
-                                Color.Black.copy(alpha = 0.78f)
+                                Color.Black.copy(alpha = 0.82f)
                             )
                         )
                     )
@@ -234,7 +305,7 @@ private fun HeroArticleCard(article: ArticleEntity, onClick: () -> Unit) {
             Column(
                 Modifier
                     .align(Alignment.BottomStart)
-                    .padding(16.dp)
+                    .padding(18.dp)
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.tertiary,
@@ -244,8 +315,8 @@ private fun HeroArticleCard(article: ArticleEntity, onClick: () -> Unit) {
                         "DESTACAT",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onTertiary,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
                 Spacer(Modifier.height(8.dp))
@@ -268,14 +339,15 @@ private fun HeroArticleCard(article: ArticleEntity, onClick: () -> Unit) {
     }
 }
 
-/** Targeta compacta: miniatura rodona + titular. */
+/** Targeta compacta: miniatura + titular. */
 @Composable
 private fun CompactArticleCard(article: ArticleEntity, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = 16.dp)
+            .pressScale(onClick),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
@@ -289,8 +361,8 @@ private fun CompactArticleCard(article: ArticleEntity, onClick: () -> Unit) {
                     model = article.imageUrl,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(84.dp)
-                        .clip(RoundedCornerShape(14.dp)),
+                        .size(88.dp)
+                        .clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.width(12.dp))

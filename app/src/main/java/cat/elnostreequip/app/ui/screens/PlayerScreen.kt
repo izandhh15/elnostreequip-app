@@ -235,6 +235,27 @@ private fun PlayerStatsTab(p: PlayerEntity) {
             }
         }
 
+        // Barres visuals de les estadístiques totals
+        if (total != null) {
+            Card(Modifier.fillMaxWidth()) {
+                Column(
+                    Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Text(
+                        "Temporada",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    val maxVal = maxOf(total.pj, total.pt, total.min, total.gols, total.assists, 1)
+                    StatBar("Partits jugats", total.pj, maxVal)
+                    StatBar("Titularitats", total.pt, maxVal)
+                    StatBar("Gols", total.gols, maxOf(total.gols, total.assists, 1))
+                    StatBar("Assistències", total.assists, maxOf(total.gols, total.assists, 1))
+                }
+            }
+        }
+
         // Taula per competició
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(vertical = 8.dp)) {

@@ -124,6 +124,34 @@ class ElNostreEquipRepository(
      */
     suspend fun matches(equipId: Int): List<CalendarMatch> =
         eneApi.calendari(equipId).matches
+
+    /**
+     * Pròxim partit entre els equips donats (el més proper en el temps).
+     * Torna la parella (equipId, partit) o null si no n'hi ha.
+     */
+    suspend fun nextMatch(teamIds: List<Int>): Pair<Int, CalendarMatch>? {
+        var best: Pair<Int, CalendarMatch>? = null
+        var bestTime: java.time.OffsetDateTime? = null
+        for (id in teamIds) {
+            val upcoming = try {
+                eneApi.calendari(id).matches.filter { !it.past }
+            } catch (_: Exception) {
+                emptyList()
+            }
+            for (m in upcoming) {
+                val t = try {
+                    java.time.OffsetDateTime.parse(m.start)
+                } catch (_: Exception) {
+                    continue
+                }
+                if (bestTime == null || t.isBefore(bestTime)) {
+                    bestTime = t
+                    best = id to m
+                }
+            }
+        }
+        return best
+    }
 }
 
 private fun String.htmlToText(): String {
