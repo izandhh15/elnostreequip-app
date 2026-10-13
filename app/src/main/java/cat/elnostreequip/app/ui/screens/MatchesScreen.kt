@@ -147,25 +147,48 @@ private fun relatedFor(
 ): List<ElNostreEquipRepository.RelatedArticle> {
     val homeN = norm(match.home)
     val rival = if ("valencia" in homeN) match.away else match.home
-    val words = norm(rival).split(Regex("[^a-z0-9]+"))
+    val rivalN = norm(rival)
+    // Designacio de filial (B, C, D...): forma part de la identitat de l'equip.
+    // "Llevant B" != "Llevant C".
+    val designation = Regex("\\b([a-z])\\b\\s*$").find(rivalN)?.groupValues?.get(1)
+    val words = rivalN.split(Regex("[^a-z0-9]+"))
         .filter { it.length > 2 && it !in TEAM_STOPWORDS }
     if (words.isEmpty()) return emptyList()
     return articles.filter { a ->
         val t = norm(a.title)
-        if (words.size >= 2) {
-            words.all { w ->
-                val variants = TEAM_ALIASES[w] ?: listOf(w)
-                variants.any { it in t }
+        val baseOk = baseMatches(words, t)
+        if (!baseOk) return@filter false
+        // Si el rival te designacio (B/C/D), el titular l'ha de mencionar
+        // amb la MATEIXA lletra: "llevant ud c", "barca c", etc.
+        if (designation != null) {
+            val base = words[0]
+            val aliases = TEAM_ALIASES[base] ?: listOf(base)
+            val found = aliases.any { alias ->
+                Regex(
+                    Regex.escape(alias) +
+                        "(?:\\s+[a-z]{1,4}){0,2}\\s+" +
+                        Regex.escape(designation) + "\\b"
+                ).containsMatchIn(t)
             }
-        } else {
-            val w = words[0]
-            val variants = TEAM_ALIASES[w] ?: listOf(w)
-            variants.any { v ->
-                // coincidència per paraula sencera per evitar "barca" en "barcaza" etc.
-                Regex("(?<![a-z0-9])${Regex.escape(v)}(?![a-z0-9])").containsMatchIn(t)
-            }
+            if (!found) return@filter false
         }
+        true
     }.take(2)
+}
+
+private fun baseMatches(words: List<String>, t: String): Boolean {
+    return if (words.size >= 2) {
+        words.all { w ->
+            val variants = TEAM_ALIASES[w] ?: listOf(w)
+            variants.any { it in t }
+        }
+    } else {
+        val w = words[0]
+        val variants = TEAM_ALIASES[w] ?: listOf(w)
+        variants.any { v ->
+            Regex("(?<![a-z0-9])" + Regex.escape(v) + "(?![a-z0-9])").containsMatchIn(t)
+        }
+    }
 }
 
 /**
