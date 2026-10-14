@@ -93,12 +93,13 @@ class MatchesViewModel(app: ElNostreEquipApp) : ViewModel() {
         viewModelScope.launch {
             try {
                 val all = repo.partitPosts()
-                // Només mostrar partits en joc: prèvia, primera/segona part o descans.
-                // Els finalitzats no surten. Es comprova cada 10s via el refresh de la UI.
+                // Només mostrar partits JUGANT-SE: primera/segona part o descans.
+                // Els de "per disputar" (prèvia) NO surten — només quan comença el partit.
+                // Els finalitzats tampoc. Es comprova cada 10s via el refresh de la UI.
                 val enJoc = all.filter { partit ->
                     try {
                         val live = repo.matchLive(partit.id)
-                        live != null && live.estat != "final" && live.estat != "finalitzat"
+                        live != null && (live.estat == "primera" || live.estat == "segona" || live.estat == "descans")
                     } catch (_: Exception) {
                         false
                     }
