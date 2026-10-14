@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.elnostreequip.app.ElNostreEquipApp
 import cat.elnostreequip.app.data.ElNostreEquipRepository
+import cat.elnostreequip.app.data.LineupPlayer
 import cat.elnostreequip.app.data.TimelineEvent
 import cat.elnostreequip.app.data.api.MatchLiveData
 import kotlinx.coroutines.delay
@@ -92,6 +93,7 @@ private fun EnJocMatchCard(partit: ElNostreEquipRepository.PartitPost) {
     val app = LocalContext.current.applicationContext as ElNostreEquipApp
     var live by remember { mutableStateOf<MatchLiveData?>(null) }
     var timeline by remember { mutableStateOf<List<TimelineEvent>>(emptyList()) }
+    var lineup by remember { mutableStateOf<List<LineupPlayer>>(emptyList()) }
     var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(partit.id) {
@@ -100,17 +102,21 @@ private fun EnJocMatchCard(partit: ElNostreEquipRepository.PartitPost) {
                 live = app.repository.matchLive(partit.id)
                 if (expanded) {
                     timeline = app.repository.matchTimeline(partit.link)
+                    if (lineup.isEmpty()) {
+                        lineup = app.repository.matchLineup(partit.link)
+                    }
                 }
             } catch (_: Exception) {
             }
-            delay(30_000)
+            delay(10_000)
         }
     }
 
     LaunchedEffect(expanded) {
-        if (expanded && timeline.isEmpty()) {
+        if (expanded) {
             try {
-                timeline = app.repository.matchTimeline(partit.link)
+                if (timeline.isEmpty()) timeline = app.repository.matchTimeline(partit.link)
+                if (lineup.isEmpty()) lineup = app.repository.matchLineup(partit.link)
             } catch (_: Exception) {
             }
         }
@@ -224,17 +230,51 @@ private fun EnJocMatchCard(partit: ElNostreEquipRepository.PartitPost) {
                         )
                     }
                 }
-            } else if (expanded) {
+            }
+
+            // XI Inicial
+            if (expanded && lineup.isNotEmpty()) {
+                Spacer(Modifier.height(14.dp))
+                Text(
+                    "XI Inicial",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+                lineup.forEach { player ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "${player.dorsal}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFFD32F2F),
+                            modifier = Modifier.width(32.dp)
+                        )
+                        Text(
+                            player.name,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            if (expanded && timeline.isEmpty() && lineup.isEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Carregant cronologia...",
+                    "Carregant cronologia i alineació...",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            } else {
+            } else if (!expanded) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Toca per veure la cronologia ▼",
+                    "Toca per veure la cronologia i l'XI ▼",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

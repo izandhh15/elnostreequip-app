@@ -152,6 +152,10 @@ class ElNostreEquipRepository(
     suspend fun matchTimeline(partitUrl: String): List<TimelineEvent> =
         TimelineParser.fetchTimeline(partitUrl)
 
+    /** XI titular d'un partit (parsejat del HTML públic). */
+    suspend fun matchLineup(partitUrl: String): List<LineupPlayer> =
+        TimelineParser.fetchLineup(partitUrl)
+
     data class PartitPost(
         val id: Long,
         val title: String,

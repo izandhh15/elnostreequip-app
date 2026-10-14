@@ -15,6 +15,12 @@ data class TimelineEvent(
     val text: String
 )
 
+/** Jugadora de l'XI titular (parsejada del HTML del web). */
+data class LineupPlayer(
+    val dorsal: Int,
+    val name: String
+)
+
 /**
  * Parsea la cronologia del Match Center des del HTML públic de la pàgina del partit.
  * El web renderitza la cronologia al servidor (div.ene-timeline), així que es pot
@@ -35,6 +41,37 @@ object TimelineParser {
                 emptyList()
             }
         }
+
+    /** XI titular: parseja dorsal + nom del div ene-pitch del HTML públic. */
+    suspend fun fetchLineup(partitUrl: String): List<LineupPlayer> =
+        withContext(Dispatchers.IO) {
+            try {
+                val request = Request.Builder().url(partitUrl).build()
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful) return@withContext emptyList()
+                val html = response.body?.string() ?: return@withContext emptyList()
+                parseLineup(html)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+
+    fun parseLineup(html: String): List<LineupPlayer> {
+        val players = mutableListOf<LineupPlayer>()
+        val regex = Regex("""<span class="ene-player-number">(\d+)</span>\s*<div class="ene-player-name">([^<]+)</div>""")
+        for (match in regex.findAll(html)) {
+            try {
+                val dorsal = match.groupValues[1].toIntOrNull() ?: continue
+                val name = match.groupValues[2].trim()
+                if (name.isNotEmpty()) {
+                    players.add(LineupPlayer(dorsal, name))
+                }
+            } catch (_: Exception) {
+                continue
+            }
+        }
+        return players
+    }
 
     fun parseTimeline(html: String): List<TimelineEvent> {
         val events = mutableListOf<TimelineEvent>()

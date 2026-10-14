@@ -58,7 +58,7 @@ fun PartitDestacatCard(partit: ElNostreEquipRepository.PartitPost) {
                     live = app.repository.matchLive(partit.id)
                 } catch (_: Exception) {
                 }
-                delay(30_000)
+                delay(10_000)
             }
         }
     }
