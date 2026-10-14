@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     const val BASE_URL = "https://elnostreequip.cat/wp-json/wp/v2/"
@@ -14,6 +15,11 @@ object RetrofitClient {
         }
         OkHttpClient.Builder()
             .addInterceptor(logging)
+            // Timeouts generosos: amb 4G lent, 100 jugadores amb fotos
+            // poden trigar més de 10s (el defecte d'OkHttp).
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
