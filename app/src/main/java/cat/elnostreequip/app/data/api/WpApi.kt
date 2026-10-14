@@ -1,6 +1,9 @@
 package cat.elnostreequip.app.data.api
 
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -62,4 +65,15 @@ interface WpApi {
     suspend fun partits(
         @Query("per_page") perPage: Int = 5
     ): List<WpPost>
+
+    /**
+     * Dades en directe del Match Center.
+     * Endpoint públic AJAX que fa servir el propi web (sense auth).
+     */
+    @FormUrlEncoded
+    @POST("https://elnostreequip.cat/wp-admin/admin-ajax.php")
+    suspend fun matchLive(
+        @Field("action") action: String = "ene_get_match_data",
+        @Field("partido") partido: Long
+    ): MatchLiveResponse
 }

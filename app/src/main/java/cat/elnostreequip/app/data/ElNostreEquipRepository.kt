@@ -3,6 +3,7 @@ package cat.elnostreequip.app.data
 import android.text.Html
 import cat.elnostreequip.app.data.api.CalendarMatch
 import cat.elnostreequip.app.data.api.EneApi
+import cat.elnostreequip.app.data.api.MatchLiveData
 import cat.elnostreequip.app.data.api.WpApi
 import cat.elnostreequip.app.data.api.WpPost
 import cat.elnostreequip.app.data.api.featuredImageUrl
@@ -136,6 +137,15 @@ class ElNostreEquipRepository(
                 date = p.date,
                 link = p.link
             )
+        }
+
+    /** Dades en directe d'un partit (marcador, minut, estat). */
+    suspend fun matchLive(partitId: Long): MatchLiveData? =
+        try {
+            val resp = api.matchLive(partido = partitId)
+            if (resp.success) resp.data else null
+        } catch (_: Exception) {
+            null
         }
 
     data class PartitPost(
