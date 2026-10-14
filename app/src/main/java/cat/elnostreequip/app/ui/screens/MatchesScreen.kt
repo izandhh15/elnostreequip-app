@@ -92,7 +92,18 @@ class MatchesViewModel(app: ElNostreEquipApp) : ViewModel() {
     private fun loadPartits() {
         viewModelScope.launch {
             try {
-                _partitPosts.value = repo.partitPosts()
+                val all = repo.partitPosts()
+                // Només mostrar partits en joc: prèvia, primera/segona part o descans.
+                // Els finalitzats no surten. Es comprova cada 10s via el refresh de la UI.
+                val enJoc = all.filter { partit ->
+                    try {
+                        val live = repo.matchLive(partit.id)
+                        live != null && live.estat != "final" && live.estat != "finalitzat"
+                    } catch (_: Exception) {
+                        false
+                    }
+                }
+                _partitPosts.value = enJoc
             } catch (_: Exception) {
             }
         }

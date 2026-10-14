@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.room.Room
 import cat.elnostreequip.app.data.ElNostreEquipRepository
+import cat.elnostreequip.app.data.MatchNotificationWorker
 import cat.elnostreequip.app.data.api.EneClient
 import cat.elnostreequip.app.data.api.RetrofitClient
 import cat.elnostreequip.app.data.db.AppDatabase
@@ -28,6 +29,8 @@ class ElNostreEquipApp : Application() {
         repository = ElNostreEquipRepository(RetrofitClient.api, db, EneClient.api)
         topicManager = TopicManager(this)
         createNotificationChannel()
+        // Programar notificacions de partits en directe (cada 15 min)
+        MatchNotificationWorker.schedule(this)
     }
 
     private fun createNotificationChannel() {
