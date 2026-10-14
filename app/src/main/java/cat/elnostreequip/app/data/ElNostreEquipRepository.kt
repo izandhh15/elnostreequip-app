@@ -148,6 +148,10 @@ class ElNostreEquipRepository(
             null
         }
 
+    /** Cronologia d'esdeveniments d'un partit (parsejada del HTML públic). */
+    suspend fun matchTimeline(partitUrl: String): List<TimelineEvent> =
+        TimelineParser.fetchTimeline(partitUrl)
+
     data class PartitPost(
         val id: Long,
         val title: String,

@@ -78,11 +78,24 @@ class MatchesViewModel(app: ElNostreEquipApp) : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    private val _partitPosts = MutableStateFlow<List<ElNostreEquipRepository.PartitPost>>(emptyList())
+    val partitPosts: StateFlow<List<ElNostreEquipRepository.PartitPost>> = _partitPosts
+
     private val cache = mutableMapOf<Int, List<CalendarMatch>>()
     private var articlesLoaded = false
 
     init {
         load(TeamMapper.EQUIP_B)
+        loadPartits()
+    }
+
+    private fun loadPartits() {
+        viewModelScope.launch {
+            try {
+                _partitPosts.value = repo.partitPosts()
+            } catch (_: Exception) {
+            }
+        }
     }
 
     fun select(equipId: Int) {
@@ -233,6 +246,7 @@ fun MatchesScreen(onArticleClick: (Long) -> Unit) {
     val articles by vm.articles.collectAsState()
     val loading by vm.loading.collectAsState()
     val error by vm.error.collectAsState()
+    val partitPosts by vm.partitPosts.collectAsState()
 
     val upcoming = matches.filter { !it.past }
     val past = matches.filter { it.past }
@@ -284,6 +298,12 @@ fun MatchesScreen(onArticleClick: (Long) -> Unit) {
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
+                    // Secció EN JOC: partits en directe del WordPress
+                    if (partitPosts.isNotEmpty()) {
+                        item {
+                            EnJocSection(partits = partitPosts)
+                        }
+                    }
                     if (upcoming.isNotEmpty()) {
                         item {
                             SectionTitle("Pròxims")
