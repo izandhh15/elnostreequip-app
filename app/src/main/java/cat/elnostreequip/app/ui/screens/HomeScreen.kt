@@ -155,7 +155,6 @@ fun HomeScreen(
     onMatchesClick: () -> Unit
 ) {
     val vm: HomeViewModel = appViewModel { HomeViewModel(it) }
-    val app = LocalContext.current.applicationContext as ElNostreEquipApp
     val articles by vm.articles.collectAsState()
     val teamFilter by vm.teamFilter.collectAsState()
     val nextMatch by vm.nextMatch.collectAsState()
@@ -232,7 +231,7 @@ fun HomeScreen(
 
                     if (partitPosts.isNotEmpty() && teamFilter == null) {
                         item(key = "partitdestacat") {
-                            PartitDestacatCard(partit = partitPosts.first(), app = app)
+                            PartitDestacatCard(partit = partitPosts.first())
                         }
                     }
 
